@@ -13,11 +13,16 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── CORS ─────────────────────────────────────────────────────────
-const allowedOrigins = ['http://localhost:3000', process.env.CLIENT_URL].filter(Boolean);
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+  process.env.RENDER_EXTERNAL_URL,   // Render sets this automatically
+].filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow same-origin requests (no Origin header) and explicitly listed origins
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    // Allow requests with no origin (mobile apps, curl, same-origin in prod)
+    // or any explicitly listed origin
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return cb(null, true);
     cb(new Error(`CORS: origin '${origin}' not allowed`));
   },
   credentials: true,
