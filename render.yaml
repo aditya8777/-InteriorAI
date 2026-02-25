@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: interior-design-app
+    env: node
+    region: oregon
+    plan: free
+
+    # Render runs this once to build the project
+    buildCommand: npm install && npm --prefix server install && npm run build
+
+    # Render runs this to start the server
+    startCommand: npm start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Set these in the Render dashboard (Environment tab) — do NOT put real values here
+      - key: MONGO_URI
+        sync: false          # Render will prompt you to set this manually
+      - key: JWT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      # CLIENT_URL not needed — React is served from the same Express server
