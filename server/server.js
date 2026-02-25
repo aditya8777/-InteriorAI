@@ -13,18 +13,12 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── CORS ─────────────────────────────────────────────────────────
-const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.CLIENT_URL,
-  process.env.RENDER_EXTERNAL_URL,   // Render sets this automatically
-].filter(Boolean);
+// In production React is served from this same Express server,
+// so allow all origins. In dev restrict to localhost:3000.
 app.use(cors({
-  origin: (origin, cb) => {
-    // Allow requests with no origin (mobile apps, curl, same-origin in prod)
-    // or any explicitly listed origin
-    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return cb(null, true);
-    cb(new Error(`CORS: origin '${origin}' not allowed`));
-  },
+  origin: process.env.NODE_ENV === 'production'
+    ? true  // reflect any origin — safe because frontend & backend are same server
+    : 'http://localhost:3000',
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
