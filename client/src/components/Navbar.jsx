@@ -22,11 +22,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-amber-500 rounded-sm flex items-center justify-center">
-              <span className="text-stone-950 font-display font-bold text-sm">I</span>
-            </div>
-            <span className="font-display text-xl text-stone-100 group-hover:text-amber-400 transition-colors">
-              InteriorAI
+            <img src="/logo.png" alt="Roomly" className="w-11 h-11 object-cover rounded-full ring-2 ring-amber-500/40" />
+            <span
+              className="text-stone-100 group-hover:text-amber-400 transition-colors"
+              style={{ fontFamily: "'Great Vibes', cursive", fontSize: '2rem', lineHeight: 1 }}
+            >
+              Roomly
             </span>
           </Link>
 

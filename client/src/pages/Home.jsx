@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../App';
 
@@ -37,20 +37,49 @@ const features = [
 
 export default function Home() {
   const { user } = useAuth();
+  const videoRef = useRef(null);
+  const heroRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!videoRef.current || !heroRef.current) return;
+      const scrollY = window.scrollY;
+      const heroHeight = heroRef.current.offsetHeight;
+      // Parallax: video moves up at half the scroll speed and scales slightly
+      const progress = Math.min(scrollY / heroHeight, 1);
+      const translateY = scrollY * 0.4;
+      const scale = 1 + progress * 0.15;
+      const opacity = 1 - progress * 0.6;
+      videoRef.current.style.transform = `translateY(${translateY}px) scale(${scale})`;
+      videoRef.current.style.opacity = opacity;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-stone-950">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 px-4 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-10 w-72 h-72 bg-amber-600/5 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-full bg-gradient-to-b from-transparent via-stone-700/20 to-transparent" />
-        </div>
+      <section ref={heroRef} className="relative h-screen flex items-center justify-center px-4 overflow-hidden">
+        {/* Background Video */}
+        <video
+          ref={videoRef}
+          src="/bg-video.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover origin-center will-change-transform"
+          style={{ transition: 'opacity 0.1s linear' }}
+        />
+        {/* Dark overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-stone-950/50 to-stone-950" />
+        {/* Amber tint accent */}
+        <div className="absolute inset-0 bg-amber-900/10" />
 
-        <div className="max-w-5xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-700 rounded-full text-xs text-amber-400 mb-8">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-700 rounded-full text-xs text-amber-400 mb-6">
             <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
             AI-Powered Interior Design Platform
           </div>
@@ -93,33 +122,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Room Preview Mockup */}
-        <div className="max-w-4xl mx-auto mt-20 relative">
-          <div className="bg-stone-900 border border-stone-800 rounded-lg overflow-hidden shadow-2xl">
-            <div className="flex items-center gap-2 px-4 py-3 bg-stone-800 border-b border-stone-700">
-              <div className="w-3 h-3 rounded-full bg-red-500/70" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-              <div className="w-3 h-3 rounded-full bg-green-500/70" />
-              <span className="text-stone-500 text-xs ml-2">InteriorAI — Design Studio</span>
-            </div>
-            <div className="h-64 bg-stone-900 flex items-center justify-center relative">
-              {/* Simulated 2D grid */}
-              <div className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: 'linear-gradient(#d6d3d1 1px, transparent 1px), linear-gradient(90deg, #d6d3d1 1px, transparent 1px)',
-                  backgroundSize: '20px 20px'
-                }}
-              />
-              <div className="relative grid grid-cols-3 gap-8 p-8">
-                <div className="w-24 h-16 bg-amber-700/40 border border-amber-600/50 rounded flex items-center justify-center text-amber-500/70 text-xs">Sofa</div>
-                <div className="w-16 h-16 bg-stone-700/60 border border-stone-600/50 rounded flex items-center justify-center text-stone-400/70 text-xs">Table</div>
-                <div className="w-20 h-12 bg-stone-600/40 border border-stone-500/50 rounded flex items-center justify-center text-stone-400/70 text-xs">Chair</div>
-                <div className="w-32 h-20 bg-stone-700/40 border border-stone-600/50 rounded flex items-center justify-center text-stone-400/70 text-xs">Bed</div>
-                <div className="w-12 h-12 bg-amber-900/30 border border-amber-700/40 rounded flex items-center justify-center text-amber-600/70 text-xs">Lamp</div>
-                <div className="w-20 h-14 bg-stone-600/30 border border-stone-500/40 rounded flex items-center justify-center text-stone-500/70 text-xs">Decor</div>
-              </div>
-            </div>
-          </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-stone-400 animate-bounce">
+          <span className="text-xs tracking-widest uppercase">Scroll</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-amber-400">
+            <path d="M10 3v14M10 17l-5-5M10 17l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
       </section>
 
@@ -174,7 +182,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 border-t border-stone-900 px-4 text-center text-stone-600 text-sm">
-        <p>© 2026 InteriorAI. Built with React, Three.js & Gemini AI.</p>
+        <p>© 2026 Roomly. Built with React, Three.js & Gemini AI.</p>
       </footer>
     </div>
   );
